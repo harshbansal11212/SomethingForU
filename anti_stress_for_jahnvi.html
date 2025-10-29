@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calm Corner For Jahnvi Mam </title>
+  <style>
+    :root{
+      --bg1:#FFDEE9;
+      --bg2:#B5FFFC;
+      --card:#ffffffcc;
+      --accent:#ff8ba7;
+      --muted:#6b6b6b;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(135deg,var(--bg1),var(--bg2));}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{width:100%;max-width:980px;background:var(--card);backdrop-filter:blur(6px);border-radius:18px;box-shadow:0 8px 30px rgba(12,12,12,0.12);padding:20px;display:grid;grid-template-columns:1fr 360px;gap:18px}
+    header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between}
+    h1{margin:0;font-size:20px}
+    .sub{color:var(--muted);font-size:13px}
+    .left{padding:10px}
+    .right{padding:10px}
+    .breath{background:#fff;padding:16px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:12px}
+    .circle{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9), rgba(255,255,255,0.5)),linear-gradient(180deg,#fff, #ffeef4);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px}
+    .controls{display:flex;gap:8px}
+    button{background:var(--accent);border:none;padding:10px 12px;border-radius:10px;color:#fff;font-weight:600;cursor:pointer}
+    button.ghost{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+    .game{background:#fff;padding:14px;border-radius:12px}
+    canvas{width:100%;height:220px;border-radius:8px;display:block;background:linear-gradient(to bottom,#aee1f9,#f9fcff);} 
+    .spinner-game{width:100px;height:100px;border:10px solid #fff;border-top:10px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto;}
+    @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+    footer{grid-column:1/-1;text-align:center;color:var(--muted);font-size:12px;padding-top:6px}
+    @media (max-width:880px){.card{grid-template-columns:1fr;}.right{order:2}.left{order:1}}
+    .tiny{font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <main class="card" role="main">
+      <header>
+        <div>
+          <h1>Calm Corner For Jahnvi Mam</h1>
+          <div class="sub">Relax, play, and breathe</div>
+        </div>
+        <div class="tiny">Made By Harsh</div>
+      </header>
+
+      <section class="left">
+        <div class="game">
+          <h3 style="margin:0;font-size:15px">Pop Bubbles</h3>
+          <div class="tiny">Click or tap bubbles to pop</div>
+          <canvas id="bubbleCanvas" width="640" height="360"></canvas>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <div class="tiny">Score: <span id="score">0</span></div>
+            <button id="resetGame" class="ghost">Reset</button>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="game">
+          <h3 style="margin:0;font-size:15px">Spinner Game</h3>
+          <div class="tiny">Click to spin faster — slows down naturally</div>
+          <div id="spinner" class="spinner-game"></div>
+        </div>
+      </section>
+
+      <aside class="right">
+        <div class="breath" aria-label="Breathing exercise">
+          <h2 style="margin:0;font-size:16px">Breathing exercise</h2>
+          <div class="tiny">Follow the circle: inhale — hold — exhale</div>
+          <div id="breathCircle" class="circle">Relax</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label for="duration" class="tiny">Seconds:</label>
+            <input id="duration" type="range" min="10" max="120" value="40" style="flex:1">
+            <div id="durLabel" class="tiny" style="width:56px;text-align:right">40s</div>
+          </div>
+          <div class="controls">
+            <button id="startBreath">Start</button>
+            <button id="stopBreath" class="ghost">Stop</button>
+          </div>
+        </div>
+      </aside>
+
+      <footer>Visit Again If Tired</footer>
+    </main>
+  </div>
+
+  <script>
+    // Breathing Exercise
+    const circle = document.getElementById('breathCircle');
+    const startBtn = document.getElementById('startBreath');
+    const stopBtn = document.getElementById('stopBreath');
+    const durationInput = document.getElementById('duration');
+    const durLabel = document.getElementById('durLabel');
+    let breathTimer = null;
+
+    durationInput.addEventListener('input', ()=> durLabel.textContent = durationInput.value + 's');
+
+    function startBreathing(totalSeconds){
+      if (breathTimer) clearInterval(breathTimer);
+      const cycle = 4 + 2 + 6;
+      const cycles = Math.max(1, Math.floor(totalSeconds / cycle));
+      let step = 0;
+      let currentCycle = 0;
+      const stages = [ {name:'Inhale',len:4,scale:1.18}, {name:'Hold',len:2,scale:1.18}, {name:'Exhale',len:6,scale:0.78} ];
+      circle.textContent = 'Ready';
+      breathTimer = setInterval(()=>{
+        const stage = stages[step];
+        circle.textContent = stage.name;
+        circle.style.transform = `scale(${stage.scale})`;
+        circle.style.transition = `transform ${stage.len}s ease-in-out`;
+        step++;
+        if (step >= stages.length) step = 0, currentCycle++;
+        if (currentCycle >= cycles) {
+          clearInterval(breathTimer);
+          breathTimer = null;
+          circle.textContent = 'Well done!';
+          circle.style.transform = 'scale(1)';
+        }
+      }, 4000);
+    }
+    startBtn.addEventListener('click', ()=> startBreathing(parseInt(durationInput.value)));
+    stopBtn.addEventListener('click', ()=>{ if (breathTimer) clearInterval(breathTimer); breathTimer=null; circle.textContent='Relax'; circle.style.transform='scale(1)';});
+
+    // Bubble Game
+    const canvas = document.getElementById('bubbleCanvas');
+    const ctx = canvas.getContext('2d');
+    let bubbles = [];
+    let score = 0;
+    const scoreEl = document.getElementById('score');
+
+    function rand(min,max){return Math.random()*(max-min)+min;}
+    function spawnBubble(){
+      const r = rand(15,35);
+      bubbles.push({x:rand(r,canvas.width-r),y:canvas.height+ r,vy:rand(-1.2,-0.4),r,alpha:1});
+    }
+    function resizeCanvas(){
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = 220;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    for(let i=0;i<8;i++) spawnBubble();
+
+    function update(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      if (Math.random()<0.04) spawnBubble();
+      for(let i=bubbles.length-1;i>=0;i--){
+        const b = bubbles[i];
+        b.y += b.vy;
+        b.alpha -= 0.0006;
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+        ctx.fill();
+        if (b.y + b.r < -40 || b.alpha <= 0.2) bubbles.splice(i,1);
+      }
+      requestAnimationFrame(update);
+    }
+    update();
+
+    canvas.addEventListener('pointerdown', (e)=>{
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      for(let i=bubbles.length-1;i>=0;i--){
+        const b = bubbles[i];
+        const dx = x - b.x, dy = y - b.y;
+        if (dx*dx + dy*dy <= b.r*b.r){
+          bubbles.splice(i,1);
+          score += Math.max(1, Math.round(50/b.r));
+          scoreEl.textContent = score;
+          for(let k=0;k<6;k++) spawnBubble();
+          return;
+        }
+      }
+    });
+
+    document.getElementById('resetGame').addEventListener('click', ()=>{bubbles=[];score=0;scoreEl.textContent=0;for(let i=0;i<6;i++) spawnBubble();});
+
+    // Spinner Game
+    const spinner = document.getElementById('spinner');
+    let speed = 0;
+    let spinnerInterval;
+
+    function updateSpinner(){
+      speed *= 0.98; // gradually slow down
+      const duration = Math.max(0.1, 1 / Math.max(1, speed));
+      spinner.style.animation = `spin ${duration}s linear infinite`;
+      if (speed < 0.1) {
+        clearInterval(spinnerInterval);
+        spinnerInterval = null;
+      }
+    }
+
+    spinner.addEventListener('click', ()=>{
+      speed += 1; // increase speed
+      if (!spinnerInterval) spinnerInterval = setInterval(updateSpinner, 100);
+      updateSpinner();
+    });
+  </script>
+</body>
+</html>
